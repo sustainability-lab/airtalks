@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Vision language models are blind">
+  <meta name="keywords"
+    content="GPT, GPT-4V, GPT-4, VLM, Sonnet, Claude, Gemini, LLM, LLaMA, Llama-20. LLaVA, CLIP, ResNet50, ViT, Representation Learning, Transfer Learning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:description"
+    content="Research showing that vision language models (VLMs) fail on simple visual tasks that are easy for humans.">
+  <meta property="og:image" content="https://vlmsareblind.github.io/static/images/logo/logo.png">
+  <meta property="og:url" content="https://vlmsareblind.github.io">
+  <meta property="og:type" content="website">
+  <meta name="twitter:title" content="VLMs are Blind">
+  <meta name="twitter:description"
+    content="Research showing that vision language models (VLMs) fail on simple visual tasks that are easy for humans.">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="./static/images/logo/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./static/images/logo/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./static/images/logo/apple-touch-icon.png">
+  <link rel="manifest" href="./static/site.webmanifest">
+  <link rel="icon" href="./static/images/logo/favicon.ico">
+  <title>AirTalks</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GRFWN15ZEN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-GRFWN15ZEN');
+  </script>
+
+  <link rel="stylesheet" href="https://gradio.s3-us-west-2.amazonaws.com/2.6.2/static/bundle.css">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <script src="https://kit.fontawesome.com/ab929d0fa6.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.ico">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+  <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/4.7.1/gradio.js"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
+
+  <style>
+    ol li {
+      list-style: none;
+      position: relative;
+    }
+
+    ol.alpha {
+      counter-reset: alpha
+    }
+
+    ol.alpha>li:before {
+      counter-increment: alpha;
+      content: "(" counter(alpha, lower-alpha)") "
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      /* Added to set equal height rows */
+      grid-gap: 10px;
+    }
+
+    .image-grid-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .image-grid-text {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 5px;
+
+    }
+
+    .image-grid-text-left {
+      text-align: left;
+      width: 50%;
+    }
+
+    .image-grid-text-right {
+      text-align: right;
+      width: 50%;
+    }
+
+    .correct-prediction {
+      color: green;
+    }
+
+    .wrong-prediction {
+      color: red;
+    }
+
+    .grid-container {
+      display: flex;
+      height: calc(100% - 20px);
+      /* Add this rule */
+    }
+
+    .category-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      /* Change from space-between to space-around */
+      margin-right: 15px;
+      /* Add this rule */
+    }
+
+    .category-text {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      text-align: center;
+      margin-top: 40px;
+      /* Add this rule to adjust the position */
+    }
+
+    .figure {
+      margin: auto;
+      width: 60%;
+      /* Adjust as needed */
+    }
+
+    .ebox {
+      border: 1px solid black;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .caption {
+      font-style: italic;
+      text-align: center;
+      margin-bottom: 5px;
+      margin-top: 5px;
+      /* Adjust the value as needed */
+
+    }
+
+    .darkgreen {
+      color: darkgreen;
+    }
+
+    .darkblue {
+      color: darkblue;
+    }
+
+    .darkred {
+      color: darkred;
+    }
+
+
+    .darkgreen {
+      color: darkgreen;
+    }
+
+    .darkblue {
+      color: darkblue;
+    }
+
+    .darkred {
+      color: darkred;
+    }
+
+    .darkyellow {
+      color: darkgoldenrod;
+      /* Adjust color as needed */
+    }
+
+    .ebox {
+      border: 3px solid black;
+      /* Standard border thickness for sides and bottom */
+      border-top-width: 50px;
+      /* Significantly thicker top border */
+      border-radius: 10px;
+      /* Rounded corners */
+      padding: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      /* Needed for absolute positioning of the title */
+    }
+
+    .ebox-title {
+      position: absolute;
+      /* Absolute positioning */
+      top: -50px;
+      /* Position the title over the thick top border */
+      left: 0;
+      width: 100%;
+      /* Title spans the width of the ebox */
+      text-align: center;
+      font-size: 1.5em;
+      /* Adjust the font size as needed */
+      line-height: 50px;
+      /* Line height to vertically center the text in the border */
+      background-color: black;
+      /* Same background color as the border */
+      color: white;
+      /* Text color */
+      border-top-left-radius: 10px;
+      /* Rounded corners at the top */
+      border-top-right-radius: 10px;
+    }
+
+
+    /* Basic table styling */
+    .responsive-table {
+      overflow-x: auto;
+      /* enables horizontal scrolling for smaller screens */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid black;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: center;
+    }
+
+    .citation {
+      font-style: italic;
+    }
+
+    .average {
+      background-color: #fdd9b5;
+      /* Apricot color approximation */
+    }
+
+    .max-agreement {
+      background-color: #add8e6;
+      /* Lightblue color approximation */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 800px) {
+
+      th,
+      td {
+        padding: 6px;
+        font-size: 0.9em;
+        /* Reduce font size for smaller screens */
+      }
+    }
+
+    @media (max-width: 500px) {
+
+      th,
+      td {
+        padding: 4px;
+        font-size: 0.8em;
+        /* Further reduce font size for very small screens */
+      }
+    }
+
+    .image-gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      /* Space between rows */
+    }
+
+    .gallery-row {
+      display: flex;
+      justify-content: space-between;
+      /* Distributes space between and around items */
+      gap: 10px;
+      /* Space between items in the same row */
+    }
+
+    .gallery-item {
+      flex-basis: 32.5%;
+      /* Each item takes up roughly a third of the row */
+      text-align: center;
+      /* Center the captions */
+    }
+
+    .gallery-item img {
+      width: 100%;
+      /* Make images responsive to the size of the gallery-item */
+      height: auto;
+      /* Maintain aspect ratio */
+    }
+
+    .caption {
+      margin-top: 8px;
+      /* Space between image and caption */
+    }
+
+
+    /* Header Styling */
+    th {
+      background-color: rgba(215, 214, 239, 0.81);
+      color: white;
+    }
+
+    /* Hover Effects for Rows */
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    /* Zebra Stripes for Rows */
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    /* Fixed Header */
+    thead {
+      position: sticky;
+      top: 0;
+    }
+
+    /* Typography and Alignment */
+    table {
+      font-family: Arial, sans-serif;
+    }
+
+    /* Visual Hierarchy */
+    strong {
+      color: #333;
+      font-weight: bold;
+    }
+
+    table {
+      margin-left: auto;
+      margin-right: auto;
+      /* Other existing table styles */
+    }
+
+    /* Centering Text in Table Cells */
+    th,
+    td {
+      text-align: center;
+      /* This centers the text horizontally in the cells */
+      /* Other existing th, td styles */
+    }
+
+    td.rnumber {
+      text-align: right !important;
+    }
+
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 800px) {
+
+      th,
+      td {
+        padding: 6px;
+        font-size: 0.9em;
+      }
+    }
+
+    @media (max-width: 500px) {
+
+      th,
+      td {
+        padding: 4px;
+        font-size: 0.8em;
+      }
+    }
+
+    /* Adjusting Cell Width and Height */
+    th,
+    td {
+      min-width: 100px;
+      /* Adjust as needed */
+      height: 50px;
+      /* Adjust as needed */
+      padding: 10px;
+      text-align: center;
+    }
+
+    /* Adjusting Table Width and Height */
+    table {
+      max-width: 100%;
+      /* Ensures table is not wider than its container */
+      height: auto;
+      /* Adjust if a fixed height with a scrollbar is needed */
+      margin: auto;
+      /* Centers the table */
+    }
+
+    /* Responsive Table Width */
+    @media (max-width: 800px) {
+      table {
+        width: 100%;
+        /* Full width on smaller screens */
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      .table-container {
+        overflow-x: auto;
+        /* Allows horizontal scrolling on smaller screens */
+      }
+
+      .table {
+        min-width: 768px;
+        /* Adjust this value based on your table's minimum required width */
+      }
+    }
+
+    .table-container {
+      overflow-x: auto;
+      /* Enables horizontal scrolling for smaller screens */
+    }
+
+    .table {
+      width: 100%;
+      /* Full width to expand in larger container */
+      min-width: 600px;
+      /* Minimum width of the table */
+    }
+
+    .dataset-name {
+      font-weight: bold;
+      /* Add any other specific styling if needed */
+    }
+
+
+    .dataset-name {
+      font-weight: bold;
+      /* Additional styling if needed */
+    }
+
+    .color-rect {
+      font-weight: bold;
+      color: black;
+      /* Black text for all .color-rect */
+      padding: 2px 4px;
+      /* Optional padding for better visibility */
+      border-radius: 4px;
+      /* Optional rounded corners */
+    }
+
+    .color-rect.apricot {
+      background-color: rgb(255, 224, 178);
+      /* Apricot background */
+    }
+
+    .color-rect.lightblue {
+      background-color: rgb(173, 216, 230);
+      /* Light Sky Blue background */
+    }
+
+    .gpt-green {
+      color: rgb(22, 163, 127);
+    }
+
+    .gemini-blue {
+      color: rgb(81, 134, 209);
+    }
+
+    .sonnet3-brown {
+      color: rgb(204, 154, 123);
+    }
+
+    .sonnet35-brown {
+      color: rgb(216, 119, 87);
+    }
+
+    .big-square {
+      transform: scale(1.5);
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .big-pentagon {
+      transform: scale(1.5);
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .big-circle {
+      transform: scale(1.4);
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .todo {
+      color: red;
+    }
+
+    .model {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .sample-image {
+      width: 100%;
+      max-width: 100px;
+      height: auto;
+    }
+
+    @media (max-width: 768px) {
+      .sample-image {
+        max-width: 60px;
+      }
+    }
+
+    .table-container table td.answer,
+    .table-container table td.check {
+      padding: 2px 5px;
+      font-size: 0.9em;
+      width: 40px;
+      text-align: center;
+    }
+
+    .table-container table td.check {
+      width: 20px;
+    }
+
+
+    .table-container table td img.model-logo {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .invisible-grid {
+      border-collapse: collapse;
+    }
+
+    .invisible-grid td,
+    .invisible-grid th {
+      border: none;
+      padding: 5px;
+    }
+
+
+    .table-container table td.answer,
+    .table-container table td.check {
+      padding: 2px 5px;
+      font-size: 0.9em;
+      width: 0px;
+      text-align: center;
+    }
+
+    .table-container table td.check {
+      width: 20px;
+    }
+
+    .table-container table td img.model-logo {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .green {
+      color: #4CAF50;
+    }
+
+    .red {
+      color: #F44336;
+    }
+
+    .light-gray {
+      background-color: #f5f5f5;
+    }
+
+    .sample-image {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .frame {
+      background-color: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      background-color: #000;
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px 5px 0 0;
+      margin: -20px -20px 20px -20px;
+    }
+
+    h2 {
+      margin: 0;
+    }
+
+    .graph {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .graph-item {
+      flex: 1;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .graph-item img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .check,
+    .cross {
+      font-weight: bold;
+    }
+
+    .check {
+      color: #4CAF50;
+    }
+
+    .cross {
+      color: #F44336;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .legend-item img {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .result-table th,
+    .result-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    .result-table th {
+      background-color: #f2f2f2;
+    }
+
+    .result-table td {
+      position: relative;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .result-table .label {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    .result-table .cross,
+    .result-table .check {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 5px;
+    }
+
+    .result-table img.model-logo {
+      display: block;
+      margin: 0 auto;
+      max-width: 32px;
+      height: auto;
+    }
+
+    .check {
+      color: #4CAF50;
+    }
+
+    .cross {
+      color: #F44336;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .legend-item img {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+
+    * Existing styles */ .result-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .result-table th,
+    .result-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    .result-table th {
+      background-color: #f2f2f2;
+    }
+
+    .result-table td {
+      position: relative;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .result-table .label {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    /* Updated styles for checkmarks and cross marks */
+    .result-table .cross,
+    .result-table .check {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 5px;
+      font-weight: bold;
+    }
+
+    .result-table .check {
+      color: #4CAF50;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .result-table .cross {
+      color: #F44336;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    /* Other existing styles */
+    .result-table img.model-logo {
+      display: block;
+      margin: 0 auto;
+      max-width: 32px;
+      height: auto;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .legend-item img {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+      border: none;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #f0f0f0;
+    }
+
+    .result-table tr:first-child,
+    .result-table tr:first-child th {
+      background-color: white !important;
+      border-top: none !important;
+    }
+
+
+    .result-table tr:first-child th {
+      border-top: none !important;
+    }
+
+
+    .result-table .label {
+      display: inline-block;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .result-table .cross,
+    .result-table .check {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 2px;
+      margin-top: -3px;
+    }
+
+    .result-table td {
+      position: relative;
+      text-align: center;
+      vertical-align: middle;
+      height: 50px;
+      /* Adjust this value as needed */
+    }
+
+    .result-table .label {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: #2980b9;
+    }
+
+
+    .performance-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .performance-table th,
+    .performance-table td {
+      border: 1px solid #ddd;
+      padding: 12px;
+    }
+
+    .performance-table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .performance-table td {
+      text-align: right;
+    }
+
+    .performance-table td:first-child {
+      text-align: righ;
+    }
+
+    .performance-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .performance-table .highlight {
+      font-weight: bold;
+      color: #2980b9;
+    }
+
+    .performance-table td.rnumber {
+      text-align: right;
+    }
+
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.is-active {
+      display: block;
+    }
+
+    .section-gap {
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .results-table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .results-table th:first-child {
+      border-left: 1px solid #ddd;
+    }
+
+    .results-table {
+      border-collapse: collapse !important;
+      border: 1px solid #ddd !important;
+    }
+
+    .results-table th,
+    .results-table td {
+      border: 1px solid #ddd !important;
+      padding: 8px !important;
+    }
+
+    .results-table .model-header {
+      text-align: center !important;
+    }
+
+    .special-word {
+      font-weight: bold;
+      color: #4a4a4a;
+      background-color: #f0f0f0;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .special-word.thyu {
+      color: #d35400;
+    }
+
+    .special-word.subd {
+      color: #27ae60;
+    }
+
+    .special-word.ackn {
+      color: #2980b9;
+    }
+
+    .spacer {
+      height: 50px;
+    }
+
+    .spacer-2 {
+      height: 100px;
+    }
+
+
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+
+    .task-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f8f8;
+      /* Very light gray background */
+      border: 1px solid #e0e0e0;
+      /* Light gray border */
+      border-radius: 8px;
+      padding: 15px;
+      text-decoration: none;
+      color: #333;
+      transition: all 0.3s ease;
+      height: 180px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      background-color: #f0f0f0;
+      /* Slightly darker on hover */
+    }
+
+    .task-icon {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+
+    .task-number {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #2c3e50;
+    }
+
+    .task-description {
+      font-size: 12px;
+      text-align: center;
+      color: #7f8c8d;
+    }
+
+    /* Task-specific colors */
+    .task-box:nth-child(n) {
+      background-color: #f8f8f8;
+      /* Very light gray for all boxes */
+      color: #333;
+      /* Dark gray text for all boxes */
+    }
+
+
+    .task-box:nth-child(n) .task-description {
+      color: #666;
+      /* Medium gray for description text */
+    }
+
+
+    .grid-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .grid-table th,
+    .grid-table td {
+      text-align: center;
+      vertical-align: middle;
+      padding: 5px;
+    }
+
+    .grid-table img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    @media screen and (max-width: 768px) {
+      .qualitative-samples-container {
+        overflow-x: auto;
+        max-width: 100%;
+      }
+
+      .qualitative-samples-frame {
+        min-width: 600px;
+      }
+
+      .grid-table {
+        font-size: 0.7em;
+      }
+
+      .grid-table th,
+      .grid-table td {
+        padding: 3px;
+      }
+
+      .grid-table img {
+        max-width: 40px;
+      }
+    }
+
+    .task-icon {
+      width: 96px;
+      /* Adjust size as needed */
+      height: 96px;
+      vertical-align: middle;
+      margin-left: 5px;
+    }
+
+
+    @media screen and (max-width: 768px) {
+      .frame {
+        padding: 10px;
+      }
+
+      .result-table {
+        font-size: 0.7em;
+      }
+
+      .result-table th,
+      .result-table td {
+        padding: 3px;
+      }
+
+      .result-table img {
+        max-width: 40px;
+        height: auto;
+      }
+
+      .legend {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .legend-item {
+        margin-bottom: 5px;
+      }
+
+      .model-logo {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    /* Qualitative samples improvements */
+    .qualitative-samples {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    .qualitative-samples .frame {
+      min-width: 600px;
+    }
+
+    .result-table {
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .result-table th,
+    .result-table td {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    /* Qualitative samples improvements */
+    .qualitative-samples-container {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    .qualitative-samples-frame {
+      min-width: 600px;
+    }
+
+    .result-table {
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .result-table th,
+    .result-table td {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    @media screen and (max-width: 768px) {
+      .result-table {
+        font-size: 0.7em;
+      }
+
+      .result-table th,
+      .result-table td {
+        padding: 3px;
+      }
+
+      .result-table img {
+        max-width: 40px;
+        height: auto;
+      }
+
+      .legend {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .legend-item {
+        margin-bottom: 5px;
+      }
+
+      .model-logo {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      .columns.is-mobile {
+        margin-left: -0.75rem;
+        margin-right: -0.75rem;
+        margin-top: -0.75rem;
+      }
+
+      .columns.is-mobile>.column {
+        padding: 0.75rem;
+      }
+
+      .image img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      figcaption {
+        font-size: 0.8em;
+      }
+    }
+
+
+    .image-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .image-container img {
+      flex: 1;
+      object-fit: contain;
+      width: 100%;
+      height: auto;
+      /* max-height: 200px; */
+      /* Adjust this value as needed */
+    }
+
+    .image-container figcaption {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .performance-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .performance-table th,
+    .performance-table td {
+      padding: 8px;
+      text-align: center;
+    }
+
+
+    .performance-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+      /* Slightly reduce font size */
+    }
+
+    .performance-table th,
+    .performance-table td {
+      border: 1px solid #ddd;
+      padding: 4px;
+      /* Reduce padding */
+      text-align: center;
+    }
+
+    .task-icon-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 30px;
+      /* Reduce height */
+    }
+
+    .task-icon-small {
+      width: 20px;
+      /* Slightly reduce icon size */
+      height: 20px;
+    }
+
+    .model-logo-small {
+      width: 16px;
+      /* Slightly reduce logo size */
+      height: 16px;
+      vertical-align: middle;
+    }
+
+    .performance-table .rnumber {
+      text-align: right;
+      padding-right: 2px;
+      /* Add a bit of padding on the right for numbers */
+    }
+
+    /* Add a class for narrow columns */
+    .performance-table .narrow-column {
+      width: 8%;
+      /* Adjust this value as needed */
+    }
+
+    /* Make the first column (Model) slightly wider */
+    .performance-table th:first-child,
+    .performance-table td:first-child {
+      width: 12%;
+      /* Adjust this value as needed */
+    }
+
+    /* Responsive design for smaller screens */
+    @media screen and (max-width: 768px) {
+      .performance-table {
+        font-size: 0.8em;
+      }
+
+      .performance-table th,
+      .performance-table td {
+        padding: 2px;
+      }
+
+      .task-icon-small,
+      .model-logo-small {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+
+
+    .task-icon-small {
+      width: 28px;
+      /* Increase from 20px */
+      height: 28px;
+      /* Increase from 20px */
+    }
+
+    .task-icon-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      /* Increase from 30px to accommodate larger icons */
+    }
+
+    /* Adjust table cell padding if needed */
+    .performance-table th,
+    .performance-table td {
+      padding: 6px;
+      /* Slightly increase padding if necessary */
+    }
+
+    .content-wrapper {
+      max-width: 1200px;
+      /* Adjust this value as needed */
+      margin: 0 auto;
+    }
+
+    .table-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .performance-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .performance-table th,
+    .performance-table td {
+      padding: 0.5rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .task-icon-small {
+      width: 24px;
+      height: 24px;
+    }
+
+    .model-logo-small {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+    }
+
+    @media screen and (max-width: 768px) {
+      .performance-table {
+        font-size: 0.8rem;
+      }
+
+      .performance-table th,
+      .performance-table td {
+        padding: 0.3rem;
+      }
+
+      .task-icon-small {
+        width: 20px;
+        height: 20px;
+      }
+
+      .model-logo-small {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  </style>
+</head>
+
+
+<body>
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">AirTalks: Understanding Air Pollution Discourse</h1>
+            <p class="is-size-5"> A unified view of two studies—Vartalaap (Twitter discourse, Delhi) and Samachar (print
+              news across India)—aligned with measured PM<sub>2.5</sub> to reveal seasonal attention spikes,
+              metro-centric coverage, supportive sentiment for contested fixes, and gaps between media narratives and
+              scientific source evidence. </p>
+            <div class="publication-links" style="margin-top:1rem;"> <span class="link-block"> <a
+                  href="https://dl.acm.org/doi/10.1145/3449170"
+                  class="external-link button is-small is-rounded is-dark"> <span class="icon"><i
+                      class="fas fa-file-pdf"></i></span> <span>Vartalaap Paper</span> </a> </span> <span
+                class="link-block"> <a href="https://dl.acm.org/doi/fullHtml/10.1145/3530190.3534812"
+                  class="external-link button is-small is-rounded is-dark"> <span class="icon"><i
+                      class="fas fa-file-pdf"></i></span> <span>Samachar Paper</span> </a> </span> <span
+                class="link-block"> <a href="https://github.com/rishi-a/Vartalaap"
+                  class="external-link button is-small is-rounded is-light"> <span class="icon"><i
+                      class="fab fa-github"></i></span> <span>Vartalaap Code</span> </a> </span> <span
+                class="link-block"> <a href="https://github.com/karm-patel/Samachar-News-media-on-air-pollution"
+                  class="external-link button is-small is-rounded is-light"> <span class="icon"><i
+                      class="fab fa-github"></i></span> <span>Samachar Code</span> </a> </span> </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Why this matters</h2>
+          <div class="content has-text-justified">
+            <p>
+              India faces some of the world's highest <b>PM<sub>2.5</sub></b> exposures, yet the attention of news
+              outlets and the public rises mainly during short-lived winter smog episodes. This mismatch between
+              year-round health risks and episodic visibility has consequences for sustained action. By pairing insights
+              from <b>Vartalaap</b> (1.2M Delhi-focused tweets, 2016-2020) with <b>Samachar</b> (17.4K curated articles
+              from 88 cities, 2010-2021), we show how discourse is shaped, whose voices dominate, and where coverage
+              diverges from scientific evidence—offering lessons for more effective risk communication.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Our datasets</h2>
+      <div class="content has-text-justified">
+        <ul>
+          <li>PM<sub>2.5</sub> ground truth from CPCB/OpenAQ; station data aggregated to city-daily series for
+            comparison.</li>
+          <li>Twitter: 2016-2020, Delhi-focused, ~1.2M tweets; News: 2010-2021, 17.4K articles across two national
+            dailies.</li>
+        </ul>
+        <figure class="image-container">
+          <img src="/static/images/Samachar Images/fig2.png" alt="Samachar: number of cities / PM2.5 availability" style="width:60%; height:auto; display:block; margin:auto;">
+          <!-- Samachar (COMPASS '22) — Figure 1: Number of cities for which PM2.5 data was available (dataset spread) -->
+          <figcaption> Number of cities for which PM<sub>2.5</sub> data is available each year. After 2015, number of cities steadily increase due to newly installed stations</figcaption>
+        </figure>
+
+        <table class="data-table">
+          <caption>Vartalaap dataset summary (Delhi-centric air pollution Twitter dataset)</caption>
+          <thead>
+            <tr>
+              <th>Statistic</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Total Tweets Collected</td>
+              <td>1.25M</td>
+            </tr>
+            <tr>
+              <td>Unique Users</td>
+              <td>~26K</td>
+            </tr>
+            <tr>
+              <td>Queries / Hashtags</td>
+              <td>34 (Delhi-specific)</td>
+            </tr>
+            <tr>
+              <td>Air Quality Stations</td>
+              <td>PM<sub>2.5</sub> monitors across Delhi</td>
+            </tr>
+            <tr>
+              <td>Collection Period</td>
+              <td>Jan 2016 -Dec 2020</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">How we studied this</h2>
+      <div class="content has-text-justified">
+
+        <h3 class="title is-4">Vartalaap (Twitter)</h3>
+        <ul>
+          <li>Applied natural language processing techniques to categorize tweets by sentiment (supportive, neutral, unsupportive) toward interventions like Odd-Even and Smog Towers, using a fine-tuned BERT model with nested cross-validation for robustness.</li>
+          <li>Analyzed temporal dynamics by comparing sentiment and tweet volumes with air quality patterns (daily PM<sub>2.5</sub> levels).</li>
+          <li>Conducted topic modeling (LDA) to identify dominant narratives and concerns expressed on Twitter.</li>
+          <li>Used Granger-causality analysis to test whether pollution levels could predict changes in online discussion volume.</li>
+          <li>Studied concentration of voices by analyzing the distribution of user activity (who tweets, and how often).</li>
+        </ul>
+        <figure class="image-container">
+          <img src="/static/images/Vartalaap Figures/fig7.png" alt="Sentiment over time for Odd-Even intervention">
+          <!-- Vartalaap (2021) — Figure 7: Evolution of supportive vs unsupportive sentiment around Odd-Even -->
+          <figcaption>Evolution of sentiment around "Odd-Even" scheme over time. The vertical lines with 'A' tag, signify the instances when scheme was implemented, January of 2016 and November of 2017 and 2019. 'B' and 'C' are two driving events for change in public sentiments.</figcaption>
+        </figure>
+        <hr>
+
+        <h3 class="title is-4">Samachar (Print Media)</h3>
+        <ul>
+          <li>Compared article counts across cities and years to map how media attention fluctuated with changing pollution levels.</li>
+          <li>Used topic modeling to reveal how different pollution sources (vehicular, industrial, biomass) were represented in news coverage.</li>
+          <li>Compared media narratives against scientific source-apportionment studies to highlight gaps and biases in coverage.</li>
+          <li>Examined framing differences across national newspapers (<b>Times of India</b> vs. <b>The Hindu</b>) to capture variation in emphasis and agenda.</li>
+        </ul>
+        <figure class="image-container">
+          <img src="/static/images/Samachar Images/fig5.png" alt="Samachaar: Media coverage vs PM2.5 levels mismatch">
+          <!-- Samachaar (COMPASS '22) — Figure 4: Daily PM2.5 exceedance vs volume of coverage -->
+          <figcaption>
+            Samachaar: Comparison of Delhi PM<sub>2.5</sub> levels and news article counts (2010-2021), showing that media attention is episodic despite consistently high pollution.
+          </figcaption>.
+          </figcaption>
+        </figure>
+        
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">What we found</h2>
+      <div class="content has-text-justified">
+        <ul>
+          <li><b>Seasonal attention gap</b>: Media and online discourse spike sharply in winter, even though hazardous PM<sub>2.5</sub> levels persist through much of the year.</li>
+        
+          <li><b>Geographic skew</b>: Coverage is metro-centric (Delhi, Mumbai), leaving highly polluted but less “visible” Indo-Gangetic Plain cities underrepresented in both news and social media narratives.</li>
+        
+          <li><b>Narrative distortions</b>: News stories often foreground vehicular emissions, while scientific evidence highlights the greater role of residential biomass burning and regional transport.</li>
+        
+          <li><b>Public response to fixes</b>: Twitter sentiment shows spikes of support around high-profile interventions like Odd-Even or Smog Towers, but discussion fades quickly after announcements.</li>
+        
+          <li><b>Concentration of voices</b>: A relatively small set of active Twitter users disproportionately shapes discourse, framing the conversation and amplifying certain narratives.</li>
+        
+          <li><b>Framing contrasts</b>: Print media tends to frame pollution as a governance and civic issue, while Twitter often emphasizes health risks and immediate lived experiences.</li>
+        </ul>
+        
+        <figure class="image-container">
+          <img src="/static/images/Vartalaap Figures/fig9.png" alt="PM2.5 Granger causality (monthly)">
+          <!-- Vartalaap (2021) — Figure 10: monthly Granger-causality p-values (PM2.5 -> tweets) -->
+          <figcaption>Monthly Granger-causality: PM<sub>2.5</sub> drives Twitter discussion mainly in Oct–Dec (winter
+            salience).</figcaption>
+        </figure>
+        <figure class="image-container">
+          <img src="/static/images/Samachar Images/fig1.png" alt="Choropleth: PM2.5 vs article counts across India">
+          <!-- Samachar (COMPASS '22) — Figure 3: Choropleth map showing PM2.5 hotspots vs number of articles -->
+          <figcaption>Geographic mismatch: Indo-Gangetic Plain hotspots have high PM<sub>2.5</sub> but relatively lower
+            media attention vs metros.</figcaption>
+        </figure>
+        <figure class="image-container">
+          <img src="/static/images/Samachar Images/fig7.png" alt="Source contributions vs media coverage (Delhi)">
+          <!-- Samachar (COMPASS '22) — Figure 9: Comparison of source contributions to PM2.5 in Delhi vs articles about sources -->
+          <figcaption>Source mismatch: media overrepresent vehicular sources while underreporting residential/biomass
+            contributions compared to scientific apportionment.</figcaption>
+        </figure>
+        <figure class="image-container">
+          <img src="/static/images/Samachar Images/fig3.png" alt="Year-round PM2.5 exceedances across Indo-Gangetic Plain cities">
+          <!-- Samachar (COMPASS '22) — Figure 4:
+               "Violation of daily India limit of PM2.5 level (60 µg/m3) by eleven cities in the IG plain over the year.
+                Time-span: Apr 2018 to Apr 2021 (averaged by day-of-year)."
+               Suggested file: /static/images/Samachar Images/fig4.png
+               Placement: directly under the 'Geographic skew' bullet to underline chronic exposure in IG Plain.
+          -->
+          <figcaption>
+            Samachar - Year-long PM<sub>2.5</sub> exceedances across multiple Indo-Gangetic Plain cities (Apr 2018-Apr 2021), 
+            showing pollution is persistent across the year (except monsoon months), not only a winter problem.
+          </figcaption>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Most actionable takeaways</h2>
+      <div class="content has-text-justified">
+        <ul>
+          <li><b>Communicate beyond winter</b>: Pollution is not a seasonal crisis—maintain continuous public engagement that reflects year-round health risks.</li>
+          
+          <li><b>Broaden geographic lens</b>: Spotlight smaller Indo-Gangetic Plain cities and peri-urban regions with chronic exceedances, not only high-profile metros.</li>
+          
+          <li><b>Anchor in science</b>: Frame stories and policies with evidence on dominant sources (e.g., biomass, regional transport) and clearly convey uncertainties.</li>
+          
+          <li><b>Expand trusted voices</b>: Involve health professionals, teachers, and local community actors—beyond a handful of influencers—to diversify and democratize the conversation.</li>
+          
+          <li><b>Sustain momentum</b>: Link high-attention events (e.g., policy launches, smog alerts) to follow-up reporting and monitoring, preventing quick fade-out.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  
+
+  <hr>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Limitations & next steps</h2>
+      <div class="content has-text-justified">
+        <ul>
+          <li>Scope: Vartalaap focuses on Delhi Twitter; Samachar covers two English dailies—extend to more cities,
+            languages, and platforms.</li>
+          <li>Methods: Add multimodal (text+image) analysis; use active learning/weak supervision for scalable, fresh
+            sentiment.</li>
+          <li>Operations: Move from batch to streaming dashboards with QC, uncertainty, and reproducible refreshes.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</body>
+
+</html>
